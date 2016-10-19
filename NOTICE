@@ -75,6 +75,7 @@ This project includes:
   discipline under MIT
   EL under The Apache Software License, Version 2.0
   emma under The Apache License, Version 2.0
+  emma-cogadb under The Apache License, Version 2.0
   emma-examples under The Apache License, Version 2.0
   emma-examples-flink under The Apache License, Version 2.0
   emma-examples-library under The Apache License, Version 2.0
