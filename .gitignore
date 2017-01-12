@@ -1,5 +1,6 @@
 .cache
 .classpath
+.idea
 .idea/*
 .metadata/*
 .project
@@ -19,3 +20,7 @@ dependency-reduced-pom.xml
 !.idea/copyright/
 !.idea/inspectionProfiles/
 !.idea/fileTemplates/internal/
+
+#cogadb specific
+output
+cogascript_timings.log

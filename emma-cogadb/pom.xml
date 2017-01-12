@@ -21,8 +21,8 @@
 
     <parent>
         <artifactId>emma</artifactId>
-        <groupId>eu.stratosphere</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.emmalanguage</groupId>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
 
@@ -46,17 +46,32 @@
 
         <!-- Emma -->
         <dependency>
-            <groupId>eu.stratosphere</groupId>
+            <groupId>org.emmalanguage</groupId>
             <artifactId>emma-language</artifactId>
         </dependency>
         <!-- Emma (test jars) -->
         <dependency>
-            <groupId>eu.stratosphere</groupId>
+            <groupId>org.emmalanguage</groupId>
             <artifactId>emma-language</artifactId>
             <type>test-jar</type>
         </dependency>
 
+        <!-- HDFS -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+        </dependency>
+
         <!-- CoGaDB-specific dependencies -->
+        <!-- JSON -->
+        <dependency>
+            <groupId>net.liftweb</groupId>
+            <artifactId>lift-json_${scala.tools.version}</artifactId>
+        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -64,8 +79,10 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.scalacheck</groupId>
-            <artifactId>scalacheck_${scala.tools.version}</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>

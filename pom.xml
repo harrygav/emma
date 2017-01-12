@@ -147,6 +147,7 @@
         <scala-arm.version>1.4</scala-arm.version>
         <quiver.version>5.4.12</quiver.version>
         <univocity-parsers.version>2.2.1</univocity-parsers.version>
+        <lift-json.version>3.0-RC4</lift-json.version>
 
         <!-- Test configuration -->
         <excludedSurefireGroups>org.emmalanguage.examples.ExampleTest</excludedSurefireGroups>
@@ -375,6 +376,13 @@
                 <artifactId>scopt_${scala.tools.version}</artifactId>
                 <version>${scopt.version}</version>
                 <scope>compile</scope>
+            </dependency>
+
+            <!-- JSON -->
+            <dependency>
+                <groupId>net.liftweb</groupId>
+                <artifactId>lift-json_${scala.tools.version}</artifactId>
+                <version>${lift-json.version}</version>
             </dependency>
 
             <!-- Auto-Resource Management -->
