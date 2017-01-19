@@ -32,6 +32,7 @@ trait Algebra[A] {
   def Projection(attRef: Seq[A], child: A): A
   def MapUdf(mapUdfOutAttr: Seq[A], mapUdfCode: Seq[A], child: A): A
   def Join(joinType: String, predicate: Seq[A], lhs: A, rhs: A): A
+  def CrossJoin(lhs: A, rhs: A): A
 
   //Operations
   def ExportToCsv(filename: String, separator: String, child: A): A

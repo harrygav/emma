@@ -16,7 +16,7 @@
 package org.emmalanguage
 package runtime
 
-import api.DataBag
+import api._
 import compiler.lang.cogadb._
 import io.csv._
 
@@ -31,7 +31,11 @@ import java.nio.file.Path
 /** CoGaDB runtime. */
 class CoGaDB private(coGaDBPath: Path, configPath: Path) {
 
-  val csv = CSV()
+
+
+  val csv = CSV(delimiter = '|', quote = Some(' '))
+  val csvWithHeader = CSV(delimiter = '|', quote = Some(' '), header = true)
+
 
   val inst = Seq(coGaDBPath.toString, configPath.toString).run(true)
   val tempPath = Files.createTempDirectory("emma-cogadbd").toAbsolutePath
@@ -63,22 +67,25 @@ class CoGaDB private(coGaDBPath: Path, configPath: Path) {
       ast.TableScan(dflName)
   }
 
-  def write[A](seq: Seq[A], schemaType: Symbol)(implicit converter: CSVConverter[A]): ast.TableScan = {
+  def write[A](
+    seq: Seq[A]
+  )(
+    implicit c: CSVConverter[A], m: Meta[A], schema: Schema[A]
+  ): ast.TableScan = {
     // write into csv
     val dstName = srcNames.next()
     val dstPath = tempPath.resolve(s"$dstName.csv")
 
+    val myDataBag = DataBag(seq)
+    myDataBag.writeCSV(dstPath.toString, csv)
     // TODO: construct and execute a dataflow that imports from the csv location
 
 
-
-    // TODO: Save Seq to CSV (now hardcoded file)
-    // TODO: Fix schema (now hardcoded)
-
-    val tmpSchema = Seq(ast.SchemaAttr("INT","id"),ast.SchemaAttr("VARCHAR", "name"))
-
-    val read = ast.MaterializeResult(dstName,false,
-      ast.ImportFromCsv(dstName, "/home/haros/Desktop/emmaToCoGaDB/sample_tables/A.csv", ",", tmpSchema))
+    //println(dstPath.toString)
+    val read = ast.MaterializeResult(
+      dstName,
+      false,
+      ast.ImportFromCsv(dstName, dstPath.toString, "|", schema.fields()))
 
 
 
@@ -87,11 +94,6 @@ class CoGaDB private(coGaDBPath: Path, configPath: Path) {
     ast.TableScan(dstName)
   }
 
-  val schemaTypes: Map[Symbol, String] = Map(
-    'schemaForA -> "Schema for A definition",
-    'schemaForB -> "Schema for B"
-  )
-
   def read[A](df: ast.TableScan)(implicit converter: CSVConverter[A]): Seq[A] = {
     // write into csv
     val srcName = df.tableName
@@ -99,10 +101,10 @@ class CoGaDB private(coGaDBPath: Path, configPath: Path) {
 
     // TODO: construct and execute a dataflow that exports from the table location
 
-    val export = ast.ExportToCsv(srcPath.toString, ",", df)
+    val export = ast.ExportToCsv(srcPath.toString, "|", df)
     execute(export)
 
-    DataBag.readCSV[A](srcPath.toString, csv).fetch()
+    DataBag.readCSV[A](srcPath.toString, csvWithHeader).fetch()
   }
 
   def destroy(): Unit =
@@ -139,6 +141,7 @@ class CoGaDB private(coGaDBPath: Path, configPath: Path) {
       case e: Exception => println("Warning: no process listening on port 8000")
     }
   }
+
   def executeGeneral(cmd: String, params: String) = {
     try {
 
@@ -155,21 +158,22 @@ class CoGaDB private(coGaDBPath: Path, configPath: Path) {
 object CoGaDB {
 
   def apply(coGaDBPath: Path, configPath: Path): CoGaDB = {
-    new CoGaDB(coGaDBPath.resolve("bin/cogadbd"), configPath)}
+    new CoGaDB(coGaDBPath.resolve("bin/cogadbd"), configPath)
+  }
 
   def main(args: Array[String]): Unit = {
 
-   /* val dir = "/cogadb"
-    val path = tempPath("/cogadb")
+    /* val dir = "/cogadb"
+     val path = tempPath("/cogadb")
 
-    var cogadb: CoGaDB = null
+     var cogadb: CoGaDB = null
 
 
-      new File(path).mkdirs()
-      val coGaDBPath = Paths.get(System.getProperty("coGaDBPath", "cogadb"))
-      val configPath = Paths.get(materializeResource(s"$dir/tpch.coga"))
+       new File(path).mkdirs()
+       val coGaDBPath = Paths.get(System.getProperty("coGaDBPath", "cogadb"))
+       val configPath = Paths.get(materializeResource(s"$dir/tpch.coga"))
 
-      cogadb = CoGaDB(coGaDBPath, configPath)*/
+       cogadb = CoGaDB(coGaDBPath, configPath)*/
     /*val customerScan = ast.Root(ast.TableScan("CUSTOMER"))
     val location = "/home/haros/Desktop/emmaToCoGaDB/generated/"
     val jsonPath = saveJson(customerScan,location)

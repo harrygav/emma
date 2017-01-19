@@ -37,6 +37,7 @@ object ast {
   case class Projection(attRef: Seq[AttrRef], child: Op) extends Op
   case class MapUdf(mapUdfOutAttr: Seq[MapUdfOutAttr], mapUdfCode: Seq[MapUdfCode], child: Op) extends Op
   case class Join(joinType: String, predicate: Seq[Predicate], lhs: Op, rhs: Op) extends Op
+  case class CrossJoin(lhs: Op, rhs: Op) extends Op
 
   case class ExportToCsv(filename: String, separator: String, child: Op) extends Op
   case class MaterializeResult(tableName: String, persistOnDisk: Boolean, child: Op) extends Op

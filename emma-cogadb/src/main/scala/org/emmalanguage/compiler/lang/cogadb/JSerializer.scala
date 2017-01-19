@@ -82,7 +82,7 @@ object JSerializer extends Algebra[JValue] {
   override def TableScan(tableName: String, version: Int): JValue =
     JObject(
       JField("OPERATOR_NAME", "TABLE_SCAN"),
-      JField("TABLE_NAME", tableName),
+      JField("TABLE_NAME", tableName.toUpperCase()),
       JField("VERSION", version)
   )
 
@@ -115,6 +115,12 @@ object JSerializer extends Algebra[JValue] {
       JField("LEFT_CHILD", lhs),
       JField("RIGHT_CHILD", rhs)
     )
+  override def CrossJoin(lhs: JValue, rhs: JValue): JValue =
+    JObject(
+      JField("OPERATOR_NAME", "CROSS_JOIN"),
+      JField("LEFT_CHILD", lhs),
+      JField("RIGHT_CHILD", rhs)
+    )
 
   override def ExportToCsv(filename: String, separator: String, child: JValue): JValue =
     JObject(
@@ -128,7 +134,7 @@ object JSerializer extends Algebra[JValue] {
     override def MaterializeResult(tableName: String, persistOnDisk: Boolean, child: JValue): JValue =
       JObject(
         JField("OPERATOR_NAME", "STORE_TABLE"),
-        JField("TABLE_NAME", tableName),
+        JField("TABLE_NAME", tableName.toUpperCase),
         JField("PERSIST_TABLE_ON_DISK", persistOnDisk),
         JField("LEFT_CHILD",child),
         JField("RIGHT_CHILD", JNull)
@@ -137,7 +143,7 @@ object JSerializer extends Algebra[JValue] {
   override def ImportFromCsv(tableName: String, filename: String, separator: String, schema: Seq[JValue]): JValue =
     JObject(
       JField("OPERATOR_NAME", "CREATE_TABLE"),
-      JField("TABLE_NAME", tableName),
+      JField("TABLE_NAME", tableName.toUpperCase),
       JField("TABLE_SCHEMA", JArray(schema.toList)),
       JField("PATH_TO_DATA_FILE", filename),
       JField("FIELD_SEPARATOR", separator)

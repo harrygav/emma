@@ -32,18 +32,18 @@ class TPCHQueriesExecutionSpec extends FreeSpec with Matchers with BeforeAndAfte
   var cogadb: CoGaDB = null
 
   before {
-    new File(path).mkdirs()
-    val coGaDBPath = Paths.get(System.getProperty("coGaDBPath", "cogadb"))
-    val configPath = Paths.get(materializeResource(s"$dir/tpch.coga"))
+           new File(path).mkdirs()
+           val coGaDBPath = Paths.get(System.getProperty("coGaDBPath", "cogadb"))
+           val configPath = Paths.get(materializeResource(s"$dir/tpch.coga"))
 
-    cogadb = CoGaDB(coGaDBPath, configPath)
-    //println(configPath)
-  }
+           cogadb = CoGaDB(coGaDBPath, configPath)
+           //println(configPath)
+         }
 
   after {
-    //deleteRecursive(new File(path))
-    //cogadb.destroy()
-  }
+          //deleteRecursive(new File(path))
+          //cogadb.destroy()
+        }
 
   "read CUSTOMER" in {
 
@@ -54,7 +54,7 @@ class TPCHQueriesExecutionSpec extends FreeSpec with Matchers with BeforeAndAfte
 
   "sort CUSTOMER" in {
     val sortBy = ast.Sort(Seq(
-      ast.SortCol("CUSTOMER","C_CUSTKEY","INT","C_CUSTKEY",1,"ASCENDING")), ast.TableScan("CUSTOMER"))
+      ast.SortCol("CUSTOMER", "C_CUSTKEY", "INT", "C_CUSTKEY", 1, "ASCENDING")), ast.TableScan("CUSTOMER"))
     cogadb.execute(sortBy)
 
   }
@@ -62,22 +62,24 @@ class TPCHQueriesExecutionSpec extends FreeSpec with Matchers with BeforeAndAfte
   "filter CUSTOMER" in {
 
     val customerSelection = ast.Selection(Seq(ast.And(Seq(
-                              ast.ColConst(
-                                ast.AttrRef("CUSTOMER", "CUSTKEY", "CUSTKEY", 1),
-                                ast.IntConst(500),
-                                ast.LessEqual)
-                              ))),
-                              ast.TableScan("CUSTOMER")
-                              )
+      ast.ColConst(
+        ast.AttrRef("CUSTOMER", "CUSTKEY", "CUSTKEY", 1),
+        ast.IntConst(500),
+        ast.LessEqual)
+    ))),
+                                          ast.TableScan("CUSTOMER")
+    )
 
     cogadb.execute(customerSelection)
   }
 
 
   "create A" in {
-  val schemaForA = Seq(ast.SchemaAttr("INT","id"),ast.SchemaAttr("VARCHAR", "name"))
+    val schemaForA = Seq(
+      ast.SchemaAttr("INT", "id"),
+      ast.SchemaAttr("VARCHAR", "name"))
 
-  val readA = ast.ImportFromCsv("A", "/home/haros/Desktop/emmaToCoGaDB/sample_tables/A.csv", ",", schemaForA)
+    val readA = ast.ImportFromCsv("A", "/home/haros/Desktop/emmaToCoGaDB/sample_tables/A.csv", ",", schemaForA)
 
 
     cogadb.execute(readA)
@@ -86,23 +88,36 @@ class TPCHQueriesExecutionSpec extends FreeSpec with Matchers with BeforeAndAfte
   }
 
   "write" in {
-    val scan = cogadb.write(Seq(), 'schema)
+    val x = Seq(1)
+    val scan = cogadb.write(x)
 
     //scan shouldBe
 
   }
 
-  "join A and B" in {
+  "write and read" in {
     val A = Seq((1, "foo"), (2, "bar"))
-    val B = Seq((1, 42.0), (2, 30.0))
+    val scanA = cogadb.write(A)
 
-    val scanA = cogadb.write(A, 'schemaForA)
-    val scanB = cogadb.write(B, 'schemaForB)
+    val written = cogadb.execute(scanA)
 
-    val joinR = cogadb.execute(ast.Join(???, ???, scanA, scanB))
+    val res = cogadb.read[(Int, String)](written)
+    val exp = Seq((1, "foo"), (2, "bar"))
+
+    res shouldBe exp
+  }
+
+  "cross join A and B" in {
+    val A = Seq((1, 10), (2, 20))
+    val B = Seq((1, 10.0), (2, 20.0))
+
+    val scanA = cogadb.write(A)
+    val scanB = cogadb.write(B)
+
+    val joinR = cogadb.execute(ast.CrossJoin(scanA, scanB))
 
     val res = cogadb.read[(Int, String, Double)](joinR)
-    val exp = Seq((1, "foo", 42.0), (2, "bar", 30.0))
+    val exp = for (a <- A; b <- B) yield (a._1, a._2, b._1, b._2)
 
     res shouldBe exp
   }
