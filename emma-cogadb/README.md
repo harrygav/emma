@@ -9,7 +9,7 @@ Use of the latest code is recommended (falcon branch).
 
 Recommended system: Ubuntu 16.04 or higher (14 should work as well).
 
-Following steps should guide through the installation and basic configuration for running the emma-cogadb tests.
+The following steps should guide you through the installation and basic configuration for running the `emma-cogadb` tests.
 
 ## Clone the Repository
 
@@ -67,7 +67,7 @@ If you plan using CoGaDB in standalone mode, consider using `startup.coga` as a 
 It should be located in the `bin` directory of your build and can be useful for executing generated (or hardcoded) dataflows directly at startup.
 A sample configuration file can be found [here](https://github.com/harrygav/emma/blob/cogadb/emma-cogadb/src/test/resources/cogadb/tpch.coga)
 
-In order to run the `emma-cogadb` tests, just define the coGaDBPath variable in your test run configurations.
+In order to run the `emma-cogadb` tests, define a `coGaDBPath` variable in your test run configurations.
 
 ```bash
 -DcoGaDBPath=/path/to/your/build/directory/
